@@ -33,7 +33,7 @@ async def placehold(param: QuizParam):
         }
 # Mount MCP
 fmcp = FastApiMCP(app)
-fmcp.mount()
+fmcp.mount(mount_path="/mcp")
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
