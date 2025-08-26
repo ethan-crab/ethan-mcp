@@ -99,3 +99,5 @@ typing-inspection==0.4.1
     #   pydantic-settings
 uvicorn==0.35.0
     # via mcp
+yt-dlp==2025.8.22
+    # via quickstart (pyproject.toml)
