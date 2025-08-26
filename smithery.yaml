@@ -6,5 +6,3 @@ build:
 
 startCommand:
   type: "http"
-  command: "python main.py"      # Command to start your FastAPI + MCP app
-
