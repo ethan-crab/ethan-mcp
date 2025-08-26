@@ -23,8 +23,4 @@ COPY . .
 EXPOSE 8000
 
 # Run the app with uvicorn
-CMD ["sh", "-c", "uvicorn main:app --host 0.0.0.0 --port 8000 & \
-    sleep 3 && \
-    echo 'Testing MCP server...' && \
-    curl -i -X POST http://127.0.0.1:8000/mcp/ -H 'Content-Type: application/json' -d '{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"ping\"}' || echo 'MCP test failed' && \
-    fg"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
