@@ -1,12 +1,12 @@
 from fastapi import FastAPI
 from fastapi_mcp import FastApiMCP
-from controller.get_link_data import get_yt_link
 from controller.generate_quiz import process_metadata
 from router import init_routes
 import uvicorn
 from model.models import QuizParam
 import traceback
 import sys
+import os
 
 app = FastAPI(title="Quiz Generator")
 
@@ -40,6 +40,8 @@ async def generate_quiz_desktop(param: QuizParam):
 fmcp = FastApiMCP(app)
 fmcp.mount(mount_path="/mcp")
 
+api_key = os.environ.get("API_KEY")
+
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))  # default 8000 if not set
+    uvicorn.run(app, host="0.0.0.0", port=port)

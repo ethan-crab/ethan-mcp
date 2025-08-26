@@ -1,15 +1,10 @@
 runtime: "container"
 
 build:
-  dockerfile: "Dockerfile"
-  dockerBuildPath: "."
+  dockerfile: "Dockerfile"       # Path to your Dockerfile
+  dockerBuildPath: "."           # Docker build context
 
 startCommand:
   type: "http"
-  url: "http://0.0.0.0:8000/mcp"
-  healthcheck:
-    path: "/mcp"
-    headers:
-      Accept: "text/event-stream"
-    interval: 10
-    timeout: 5
+  command: "python main.py"      # Command to start your FastAPI + MCP app
+
