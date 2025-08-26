@@ -16,6 +16,8 @@ init_routes(app)
 
 # Attach MCP
 mcp = FastMCP("Quiz Gen")
+
+# Create tool
 @mcp.tool(name="generate_quiz_mcp")
 async def placehold(param: QuizParam):
         data = await process_metadata(param.url, "en")
