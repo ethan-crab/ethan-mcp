@@ -35,6 +35,20 @@ async def generate_quiz_desktop(param: QuizParam):
     except Exception as e:
         traceback.print_exc(file=sys.stderr)  # logs full stacktrace
         raise
+# Method to list all exposed tools
+@app.get("/mcp/list_tools", operation_id="list_tools")
+async def list_tools():
+    tools = []
+    for route in app.routes:
+        # Only include routes that have an endpoint function with a __name__ (typical for @tool)
+        endpoint = getattr(route, "endpoint", None)
+        if endpoint and hasattr(endpoint, "__name__"):
+            tools.append({
+                "name": endpoint.__name__,
+                "path": route.path,
+                "methods": list(route.methods)
+            })
+    return {"tools": tools}
 
 # Mount MCP
 fmcp = FastApiMCP(app, include_operations=["makequiz"])
