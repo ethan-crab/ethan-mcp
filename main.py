@@ -37,10 +37,8 @@ async def generate_quiz_desktop(param: QuizParam):
         raise
 
 # Mount MCP
-fmcp = FastApiMCP(app)
+fmcp = FastApiMCP(app, include_operations=["makequiz"])
 fmcp.mount(mount_path="/mcp")
-
-api_key = os.environ.get("API_KEY")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))  # default 8000 if not set
