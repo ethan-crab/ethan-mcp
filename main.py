@@ -1,5 +1,3 @@
-from fastapi import FastAPI
-from fastapi_mcp import FastApiMCP
 from controller.get_link_data import get_yt_link
 from controller.generate_quiz import process_metadata
 from router import init_routes
