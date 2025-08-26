@@ -11,7 +11,8 @@ mcp = FastMCP(name="Quiz Gen")
 
 # Create tool
 @mcp.tool(name="generate_quiz_mcp")
-async def placehold(param: QuizParam):
+async def processdata(param: QuizParam):
+        """ Process the contents of the link """
         data = await process_metadata(param.url, "en")
         # Return structured metadata + quiz parameters for Claude to process
         return {
@@ -27,8 +28,6 @@ async def placehold(param: QuizParam):
                 f"type = {param.test_type}, return JSON with questions and correct answers."
             )
         }
-# Mount MCP
-#mcp.mount_sse(mount_path="/mcp")
 
 # main.py
 def main():
