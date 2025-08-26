@@ -31,10 +31,10 @@ async def placehold(param: QuizParam):
                 f"type = {param.test_type}, return JSON with questions and correct answers."
             )
         }
-# Mount MCP
-fmcp = FastApiMCP(app)
-fmcp.mount(mount_path="/mcp")
 if __name__ == "__main__":
+    # Mount MCP
+    fmcp = FastApiMCP(app)
+    fmcp.mount(mount_path="/mcp")
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
     #mcp.run()
