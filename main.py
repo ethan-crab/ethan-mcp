@@ -6,10 +6,11 @@ from mcp.server.fastmcp import FastMCP
 from starlette.middleware.cors import CORSMiddleware
 import os
 
-app = FastMCP(name="Quiz Generator")
+# Attach MCP
+mcp = FastMCP(name="Quiz Gen")
 
 # Create tool
-@app.tool(name="generate_quiz_mcp")
+@mcp.tool(name="generate_quiz_mcp")
 async def placehold(param: QuizParam):
         data = await process_metadata(param.url, "en")
         # Return structured metadata + quiz parameters for Claude to process
