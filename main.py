@@ -1,4 +1,3 @@
-from controller.get_link_data import get_yt_link
 from controller.generate_quiz import process_metadata
 from router import init_routes
 import uvicorn
@@ -7,7 +6,7 @@ from mcp.server.fastmcp import FastMCP
 from starlette.middleware.cors import CORSMiddleware
 import os
 
-app = FastAPI(title="Quiz Generator")
+app = FastMCP(title="Quiz Generator")
 
 # Your normal FastAPI routes
 init_routes(app)
