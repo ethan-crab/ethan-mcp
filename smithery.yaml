@@ -7,3 +7,9 @@ build:
 startCommand:
   type: "http"
   url: "http://0.0.0.0:8000/mcp"
+  healthcheck:
+    path: "/mcp"
+    headers:
+      Accept: "text/event-stream"
+    interval: 10
+    timeout: 5
