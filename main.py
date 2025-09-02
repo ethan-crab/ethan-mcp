@@ -23,10 +23,22 @@ async def processdata(param: QuizParamNew):
             "difficulty": param.difficulty,
             "test_type": param.test_type,
             "instruction": (
-                "Generate a quiz based on the given title, description, and transcript. "
-                f"Make {param.amt_quest} questions, difficulty = {param.difficulty}, "
-                f"type = {param.test_type}, return JSON with questions and correct answers. "
-                "Do not provide any other text than the JSON."
+                "You are a quiz generator. "
+                "Use the given title, description, and transcript to generate a quiz. "
+                f"Create exactly {param.amt_quest} questions. "
+                f"Difficulty = {param.difficulty}. "
+                f"Type = {param.test_type}. "
+                "Return the output strictly as a JSON object with the following format:\n\n"
+                "{\n"
+                '  "questions": [\n'
+                "    {\n"
+                '      "question": string,\n'
+                '      "options": [string, string, string, string],\n'
+                '      "answer": string\n'
+                "    }\n"
+                "  ]\n"
+                "}\n\n"
+                "Do not include any explanation, notes, or extra text outside of the JSON."
             )
         }
 
