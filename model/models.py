@@ -15,3 +15,11 @@ class QuizParam(BaseModel):
     amt_quest: int = 10     # number of questions
     difficulty: Difficulty = Difficulty.easy # difficulty
     test_type: TestType = TestType.flash # type of test
+
+class QuizParamNew(BaseModel):
+    title: str
+    description: str
+    transcript: str
+    amt_quest: int
+    difficulty: str
+    test_type: str

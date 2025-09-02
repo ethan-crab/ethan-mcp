@@ -1,7 +1,7 @@
 from controller.generate_quiz import process_metadata
 from router import init_routes
 import uvicorn
-from model.models import QuizParam
+from model.models import QuizParamNew
 from mcp.server.fastmcp import FastMCP
 from starlette.middleware.cors import CORSMiddleware
 import os
@@ -11,14 +11,14 @@ mcp = FastMCP(name="Quiz Gen")
 
 # Create tool
 @mcp.tool(name="generate_quiz_mcp")
-async def processdata(param: QuizParam):
+async def processdata(param: QuizParamNew):
         """ Process the contents of the link """
         data = await process_metadata(param.url, "en")
         # Return structured metadata + quiz parameters for Claude to process
         return {
-            "title": data["title"],
-            "description": data["description"],
-            "transcript": data["transcript"],
+            "title": param.title,
+            "description": param.description,
+            "transcript": param.transcript,
             "amt_quest": param.amt_quest,
             "difficulty": param.difficulty,
             "test_type": param.test_type,
