@@ -7,6 +7,7 @@ import os
 import json
 import re
 from typing import Any, Dict
+from typing import Optional
 
 # Load env for local/dev
 try:
@@ -30,15 +31,15 @@ mcp = FastMCP(name="Quiz Gen")
 
 # Create tool
 @mcp.tool(name="generate_quiz_mcp")
-async def processdata(param: QuizParamNew):
+async def processdata(title: str, description: str, transcript: Optional[str] = None, amt_quest: int = 5, difficulty: str = "easy", test_type: str = "multiple choice"):
         """Generate a quiz using Gemini if available; otherwise return instructions payload."""
 
         instruction = (
             "You are a quiz generator. "
-            "Use the given title, description, and transcript to generate a quiz. "
-            f"Create exactly {param.amt_quest} questions. "
-            f"Difficulty = {param.difficulty}. "
-            f"Type = {param.test_type}. "
+            f"Use the given title, description, and transcript to generate a quiz. "
+            f"Create exactly {amt_quest} questions. "
+            f"Difficulty = {difficulty}. "
+            f"Type = {test_type}. "
             "Return the output strictly as a JSON object with the following format:\n\n"
             "{\n"
             '  "questions": [\n'
@@ -54,21 +55,21 @@ async def processdata(param: QuizParamNew):
 
         if not _GEMINI_AVAILABLE:
             return {
-                "title": param.title,
-                "description": param.description,
-                "transcript": param.transcript,
-                "amt_quest": param.amt_quest,
-                "difficulty": param.difficulty,
-                "test_type": param.test_type,
+                "title": title,
+                "description": description,
+                "transcript": transcript,
+                "amt_quest": amt_quest,
+                "difficulty": difficulty,
+                "test_type": test_type,
                 "instruction": instruction,
                 "note": "Gemini SDK not available or GEMINI_API_KEY not set; returning instructions payload.",
             }
 
         # Build prompt for Gemini
         prompt = (
-            f"Title: {param.title}\n\n"
-            f"Description: {param.description}\n\n"
-            f"Transcript: {param.transcript or 'N/A'}\n\n"
+            f"Title: {title}\n\n"
+            f"Description: {description}\n\n"
+            f"Transcript: {transcript or 'N/A'}\n\n"
             f"{instruction}"
         )
 
@@ -105,23 +106,23 @@ async def processdata(param: QuizParamNew):
         except Exception:
             # Return raw text when parsing fails
             return {
-                "title": param.title,
-                "description": param.description,
-                "transcript": param.transcript,
-                "amt_quest": param.amt_quest,
-                "difficulty": param.difficulty,
-                "test_type": param.test_type,
+                "title": title,
+                "description": description,
+                "transcript": transcript,
+                "amt_quest": amt_quest,
+                "difficulty": difficulty,
+                "test_type": test_type,
                 "raw_output": output_text,
                 "error": "Could not parse JSON from Gemini output",
             }
 
         return {
-            "title": param.title,
-            "description": param.description,
-            "transcript": param.transcript,
-            "amt_quest": param.amt_quest,
-            "difficulty": param.difficulty,
-            "test_type": param.test_type,
+            "title": title,
+            "description": description,
+            "transcript": transcript,
+            "amt_quest": amt_quest,
+            "difficulty": difficulty,
+            "test_type": test_type,
             "quiz": quiz_json,
             "model": "gemini-1.5-flash",
         }
