@@ -25,7 +25,8 @@ async def processdata(param: QuizParamNew):
             "instruction": (
                 "Generate a quiz based on the given title, description, and transcript. "
                 f"Make {param.amt_quest} questions, difficulty = {param.difficulty}, "
-                f"type = {param.test_type}, return JSON with questions and correct answers."
+                f"type = {param.test_type}, return JSON with questions and correct answers. "
+                "Do not provide any other text than the JSON."
             )
         }
 
