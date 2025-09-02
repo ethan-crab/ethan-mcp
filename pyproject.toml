@@ -8,5 +8,5 @@ dependencies = [
     "mcp[cli]>=1.13.0",
     "yt-dlp",
     "requests",
-    "fastapi",
+    "google-generativeai",
 ]

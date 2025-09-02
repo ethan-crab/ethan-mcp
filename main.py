@@ -1,10 +1,29 @@
 from controller.generate_quiz import process_metadata
-from router import init_routes
 import uvicorn
 from model.models import QuizParamNew
 from mcp.server.fastmcp import FastMCP
 from starlette.middleware.cors import CORSMiddleware
 import os
+import json
+import re
+from typing import Any, Dict
+
+# Load env for local/dev
+try:
+    from dotenv import load_dotenv  # type: ignore
+    load_dotenv()
+except Exception:
+    pass
+
+# Optional Gemini setup
+_GEMINI_AVAILABLE = False
+try:
+    import google.generativeai as genai  # type: ignore
+    if os.getenv("GEMINI_API_KEY"):
+        genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+        _GEMINI_AVAILABLE = True
+except Exception:
+    _GEMINI_AVAILABLE = False
 
 # Attach MCP
 mcp = FastMCP(name="Quiz Gen")
@@ -12,9 +31,90 @@ mcp = FastMCP(name="Quiz Gen")
 # Create tool
 @mcp.tool(name="generate_quiz_mcp")
 async def processdata(param: QuizParamNew):
-        """ Process provided title, description, and transcript and generate a quiz based on it"""
-        #data = await process_metadata(param.url, "en")
-        # Return structured metadata + quiz parameters for Claude to process
+        """Generate a quiz using Gemini if available; otherwise return instructions payload."""
+
+        instruction = (
+            "You are a quiz generator. "
+            "Use the given title, description, and transcript to generate a quiz. "
+            f"Create exactly {param.amt_quest} questions. "
+            f"Difficulty = {param.difficulty}. "
+            f"Type = {param.test_type}. "
+            "Return the output strictly as a JSON object with the following format:\n\n"
+            "{\n"
+            '  "questions": [\n'
+            "    {\n"
+            '      "question": string,\n'
+            '      "options": [string, string, string, string],\n'
+            '      "answer": string\n'
+            "    }\n"
+            "  ]\n"
+            "}\n\n"
+            "Do not include any explanation, notes, or extra text outside of the JSON."
+        )
+
+        if not _GEMINI_AVAILABLE:
+            return {
+                "title": param.title,
+                "description": param.description,
+                "transcript": param.transcript,
+                "amt_quest": param.amt_quest,
+                "difficulty": param.difficulty,
+                "test_type": param.test_type,
+                "instruction": instruction,
+                "note": "Gemini SDK not available or GEMINI_API_KEY not set; returning instructions payload.",
+            }
+
+        # Build prompt for Gemini
+        prompt = (
+            f"Title: {param.title}\n\n"
+            f"Description: {param.description}\n\n"
+            f"Transcript: {param.transcript or 'N/A'}\n\n"
+            f"{instruction}"
+        )
+
+        def _extract_json(text: str) -> Dict[str, Any]:
+            try:
+                return json.loads(text)
+            except Exception:
+                pass
+            # Try to extract JSON code block
+            match = re.search(r"```(?:json)?\s*([\s\S]*?)```", text)
+            if match:
+                candidate = match.group(1).strip()
+                try:
+                    return json.loads(candidate)
+                except Exception:
+                    pass
+            # Fallback: first brace to last brace
+            start = text.find("{")
+            end = text.rfind("}")
+            if start != -1 and end != -1 and end > start:
+                try:
+                    return json.loads(text[start : end + 1])
+                except Exception:
+                    pass
+            raise ValueError("Failed to parse JSON from model output")
+
+        # Call Gemini
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(prompt)
+        output_text = getattr(response, "text", None) or (response.candidates[0].content.parts[0].text if getattr(response, "candidates", None) else "")
+        quiz_json: Dict[str, Any]
+        try:
+            quiz_json = _extract_json(output_text)
+        except Exception:
+            # Return raw text when parsing fails
+            return {
+                "title": param.title,
+                "description": param.description,
+                "transcript": param.transcript,
+                "amt_quest": param.amt_quest,
+                "difficulty": param.difficulty,
+                "test_type": param.test_type,
+                "raw_output": output_text,
+                "error": "Could not parse JSON from Gemini output",
+            }
+
         return {
             "title": param.title,
             "description": param.description,
@@ -22,29 +122,13 @@ async def processdata(param: QuizParamNew):
             "amt_quest": param.amt_quest,
             "difficulty": param.difficulty,
             "test_type": param.test_type,
-            "instruction": (
-                "You are a quiz generator. "
-                "Use the given title, description, and transcript to generate a quiz. "
-                f"Create exactly {param.amt_quest} questions. "
-                f"Difficulty = {param.difficulty}. "
-                f"Type = {param.test_type}. "
-                "Return the output strictly as a JSON object with the following format:\n\n"
-                "{\n"
-                '  "questions": [\n'
-                "    {\n"
-                '      "question": string,\n'
-                '      "options": [string, string, string, string],\n'
-                '      "answer": string\n'
-                "    }\n"
-                "  ]\n"
-                "}\n\n"
-                "Do not include any explanation, notes, or extra text outside of the JSON."
-            )
+            "quiz": quiz_json,
+            "model": "gemini-1.5-flash",
         }
 
 # main.py
 def main():
-    print("Say Hello MCP Server starting...")
+    print("Generate Quiz Starting...")
     
     # Setup Starlette app with CORS for cross-origin requests
     app = mcp.streamable_http_app()
