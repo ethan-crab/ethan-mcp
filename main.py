@@ -12,8 +12,8 @@ mcp = FastMCP(name="Quiz Gen")
 # Create tool
 @mcp.tool(name="generate_quiz_mcp")
 async def processdata(param: QuizParamNew):
-        """ Process the contents of the link """
-        data = await process_metadata(param.url, "en")
+        """ Process provided title, description, and transcript and generate a quiz based on it"""
+        #data = await process_metadata(param.url, "en")
         # Return structured metadata + quiz parameters for Claude to process
         return {
             "title": param.title,
