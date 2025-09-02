@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel
 from enum import Enum
 
@@ -19,7 +20,7 @@ class QuizParam(BaseModel):
 class QuizParamNew(BaseModel):
     title: str
     description: str
-    transcript: str
+    transcript: Optional[str] = None
     amt_quest: int = 5
     difficulty: str
     test_type: str
