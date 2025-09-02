@@ -20,6 +20,6 @@ class QuizParamNew(BaseModel):
     title: str
     description: str
     transcript: str
-    amt_quest: int
+    amt_quest: int = 5
     difficulty: str
     test_type: str
