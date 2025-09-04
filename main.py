@@ -63,7 +63,7 @@ async def processdata(title: str, description: str, transcript: Optional[str] = 
                 "amt_quest": amt_quest,
                 "difficulty": difficulty,
                 "test_type": test_type,
-                "instruction": instruction,
+                "instruction": str(instruction),
                 "note": "Gemini SDK not available or GEMINI_API_KEY not set; returning instructions payload.",
             }
 
@@ -115,7 +115,7 @@ async def processdata(title: str, description: str, transcript: Optional[str] = 
                 "difficulty": difficulty,
                 "test_type": test_type,
                 "raw_output": output_text,
-                "instruction": instruction,
+                "instruction": str(instruction),
                 "error": "Could not parse JSON from Gemini output",
             }
 
@@ -126,8 +126,8 @@ async def processdata(title: str, description: str, transcript: Optional[str] = 
             "amt_quest": amt_quest,
             "difficulty": difficulty,
             "test_type": test_type,
+            "instruction": str(instruction),
             "quiz": quiz_json,
-            "instruction": instruction,
             "model": "gemini-1.5-flash",
         }
 
