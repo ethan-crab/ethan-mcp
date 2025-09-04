@@ -115,6 +115,7 @@ async def processdata(title: str, description: str, transcript: Optional[str] = 
                 "difficulty": difficulty,
                 "test_type": test_type,
                 "raw_output": output_text,
+                "instruction": instruction,
                 "error": "Could not parse JSON from Gemini output",
             }
 
@@ -126,7 +127,7 @@ async def processdata(title: str, description: str, transcript: Optional[str] = 
             "difficulty": difficulty,
             "test_type": test_type,
             "quiz": quiz_json,
-            "prompt": instruction,
+            "instruction": instruction,
             "model": "gemini-1.5-flash",
         }
 
