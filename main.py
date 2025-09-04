@@ -40,17 +40,19 @@ async def processdata(title: str, description: str, transcript: Optional[str] = 
             f"Create exactly {amt_quest} questions. "
             f"Difficulty = {difficulty}. "
             f"Type = {test_type}. "
+            "For each question, include an 'explanation' array with four strings, each explaining why the corresponding option is correct or incorrect. The 'explanation' array must be index-aligned with 'options'. "
             "Return the output strictly as a JSON object with the following format:\n\n"
             "{\n"
             '  "questions": [\n'
             "    {\n"
             '      "question": string,\n'
             '      "options": [string, string, string, string],\n'
+            '      "explanation": [string, string, string, string],\n'
             '      "answer": string\n'
             "    }\n"
             "  ]\n"
             "}\n\n"
-            "Do not include any explanation, notes, or extra text outside of the JSON."
+            "Do not include any extra text outside of the JSON."
         )
 
         if not _GEMINI_AVAILABLE:
