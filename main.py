@@ -126,7 +126,7 @@ async def processdata(title: str, description: str, transcript: Optional[str] = 
             "difficulty": difficulty,
             "test_type": test_type,
             "quiz": quiz_json,
-            "prompt": prompt,
+            "prompt": instruction,
             "model": "gemini-1.5-flash",
         }
 
