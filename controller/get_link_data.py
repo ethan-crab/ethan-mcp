@@ -1,3 +1,4 @@
+"""
 from yt_dlp import YoutubeDL
 import requests
 
@@ -45,3 +46,4 @@ async def process_metadata(link: str, lang: str = "en") -> dict:
         "description": description,
         "transcript": transcript_text
     }
+"""

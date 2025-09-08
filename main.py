@@ -1,4 +1,3 @@
-from controller.generate_quiz import process_metadata
 import uvicorn
 from model.models import QuizParamNew
 from mcp.server.fastmcp import FastMCP
