@@ -26,6 +26,29 @@ try:
 except Exception:
     _GEMINI_AVAILABLE = False
 
+def _extract_json(text: str) -> Dict[str, Any]:
+            try:
+                return json.loads(text)
+            except Exception:
+                pass
+            # Try to extract JSON code block
+            match = re.search(r"```(?:json)?\s*([\s\S]*?)```", text)
+            if match:
+                candidate = match.group(1).strip()
+                try:
+                    return json.loads(candidate)
+                except Exception:
+                    pass
+            # Fallback: first brace to last brace
+            start = text.find("{")
+            end = text.rfind("}")
+            if start != -1 and end != -1 and end > start:
+                try:
+                    return json.loads(text[start : end + 1])
+                except Exception:
+                    pass
+            raise ValueError("Failed to parse JSON from model output")
+
 # Attach MCP
 mcp = FastMCP(name="Quiz Gen")
 
@@ -75,30 +98,10 @@ async def processdata(title: str, description: str, transcript: Optional[str] = 
             f"{instruction}"
         )
 
-        def _extract_json(text: str) -> Dict[str, Any]:
-            try:
-                return json.loads(text)
-            except Exception:
-                pass
-            # Try to extract JSON code block
-            match = re.search(r"```(?:json)?\s*([\s\S]*?)```", text)
-            if match:
-                candidate = match.group(1).strip()
-                try:
-                    return json.loads(candidate)
-                except Exception:
-                    pass
-            # Fallback: first brace to last brace
-            start = text.find("{")
-            end = text.rfind("}")
-            if start != -1 and end != -1 and end > start:
-                try:
-                    return json.loads(text[start : end + 1])
-                except Exception:
-                    pass
-            raise ValueError("Failed to parse JSON from model output")
+        return _call_gemini(prompt)
 
-        # Call Gemini
+def _call_gemini(prompt):
+           # Call Gemini
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(prompt)
         output_text = getattr(response, "text", None) or (response.candidates[0].content.parts[0].text if getattr(response, "candidates", None) else "")
@@ -108,29 +111,17 @@ async def processdata(title: str, description: str, transcript: Optional[str] = 
         except Exception:
             # Return raw text when parsing fails
             return {
-                "title": title,
-                "description": description,
-                "transcript": transcript,
-                "amt_quest": amt_quest,
-                "difficulty": difficulty,
-                "test_type": test_type,
-                "raw_output": output_text,
-                "instruction": str(instruction),
+                "rompt": prompt,
                 "error": "Could not parse JSON from Gemini output",
             }
 
-        return {
-            "title": title,
-            "description": description,
-            "transcript": transcript,
-            "amt_quest": amt_quest,
-            "difficulty": difficulty,
-            "test_type": test_type,
-            "instruction": str(instruction),
+        result = {
+            "prompt": prompt,
             "quiz": quiz_json,
             "model": "gemini-1.5-flash",
         }
-
+        print(f"✅ Successfully generated quiz: {json.dumps(result, indent=2)}")
+        return result
 # main.py
 def main():
     print("Generate Quiz Starting...")
