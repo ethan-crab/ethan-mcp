@@ -24,3 +24,8 @@ class QuizParamNew(BaseModel):
     amt_quest: int = 5
     difficulty: str
     test_type: str
+
+class Videos(BaseModel):
+    title: str
+    description: str
+    transcription: str

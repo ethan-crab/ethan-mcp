@@ -1,10 +1,13 @@
 import uvicorn
-from model.models import QuizParamNew
+from model.models import Videos
 from mcp.server.fastmcp import FastMCP
+from tools import smart_sort
+from tools.smart_sort import sort_videos
 from starlette.middleware.cors import CORSMiddleware
 import os
 import json
 import re
+import httpx
 from typing import Any, Dict
 from typing import Optional
 
@@ -52,7 +55,7 @@ def _extract_json(text: str) -> Dict[str, Any]:
 mcp = FastMCP(name="Quiz Gen")
 
 # Create tool
-@mcp.tool(name="generate_quiz_mcp")
+@mcp.tool(name="generate_quiz")
 async def processdata(title: str, description: str, transcript: Optional[str] = None, amt_quest: int = 5, difficulty: str = "easy", test_type: str = "multiple choice"):
         """Generate a quiz using Gemini if available; otherwise return instructions payload."""
 
@@ -99,29 +102,31 @@ async def processdata(title: str, description: str, transcript: Optional[str] = 
 
         return _call_gemini(prompt)
 
-def _call_gemini(prompt):
-           # Call Gemini
-        model = genai.GenerativeModel("gemini-1.5-flash")
-        response = model.generate_content(prompt)
-        output_text = getattr(response, "text", None) or (response.candidates[0].content.parts[0].text if getattr(response, "candidates", None) else "")
-        quiz_json: Dict[str, Any]
-        try:
-            quiz_json = _extract_json(output_text)
-        except Exception:
-            # Return raw text when parsing fails
-            return {
-                "rompt": prompt,
-                "error": "Could not parse JSON from Gemini output",
-            }
+mcp.tool(name="smart_sorter")(sort_videos)
 
-        result = {
+def _call_gemini(prompt):
+    # Call Gemini
+    model = genai.GenerativeModel("gemini-1.5-flash")
+    response = model.generate_content(prompt)
+    output_text = getattr(response, "text", None) or (response.candidates[0].content.parts[0].text if getattr(response, "candidates", None) else "")
+    quiz_json: Dict[str, Any]
+    try:
+        quiz_json = _extract_json(output_text)
+    except Exception:
+        # Return raw text when parsing fails
+        return {
             "prompt": prompt,
-            "quiz": quiz_json,
-            "model": "gemini-1.5-flash",
+            "error": "Could not parse JSON from Gemini output",
         }
-        print(f"✅ Successfully generated quiz: {json.dumps(result, indent=2)}")
-        return result
-# main.py
+
+    result = {
+        "prompt": prompt,
+        "quiz": quiz_json,
+        "model": "gemini-1.5-flash",
+    }
+    # print(f"✅ Successfully generated quiz: {json.dumps(result, indent=2)}")
+    return result
+
 def main():
     print("Generate Quiz Starting...")
     
