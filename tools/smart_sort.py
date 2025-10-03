@@ -47,7 +47,7 @@ async def sort_videos(course_name: str, goals: str, videos: list[dict | list | t
     # Call FastAPI API with error handling
     url = api_url
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
+        async with httpx.AsyncClient(timeout=600) as client:
             response = await client.post(url, json=payload)
             try:
                 response.raise_for_status()
